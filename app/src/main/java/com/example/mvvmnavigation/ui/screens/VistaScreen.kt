@@ -44,7 +44,7 @@ fun VistaScreen(
     // Cargar la lista al mostrar la pantalla
     LaunchedEffect(Unit) { vistaViewModel.loadPokemonList() }
 
-    val nombreActual = if (list.isNotEmpty()) list[index].getNombre() else "..."
+    val nombreActual = list.getOrNull(index)?.getNombre() ?: "..."
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
@@ -92,7 +92,7 @@ fun VistaScreen(
                             pressedElevation = 10.dp
                         )
                     ) {
-                        Text("Siguiente Jedi")
+                        Text("Siguiente Pokemon")
                     }
                 }
             }
@@ -102,7 +102,7 @@ fun VistaScreen(
             Button(
                 onClick = { navigateToInicio() },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(red = 181, green = 36, blue = 106),
+                    containerColor = Color(red = 0, green = 140, blue = 0),
                     contentColor = Color.White
                 ),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),

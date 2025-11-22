@@ -1,5 +1,6 @@
 package com.example.mvvmnavigation.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,8 +19,8 @@ class VistaViewModel : ViewModel(){
     private val pokemonRepository : PokemonRepository = PokemonRepository()
 
 
-    private val _pokemonList = MutableLiveData<ArrayList<Pokemon>>()
-    val pokemonList : LiveData<ArrayList<Pokemon>> = _pokemonList
+    private val _pokemonList = MutableLiveData<List<Pokemon>>(emptyList())
+    val pokemonList: LiveData<List<Pokemon>> = _pokemonList
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading : LiveData<Boolean> = _isLoading
@@ -28,25 +29,32 @@ class VistaViewModel : ViewModel(){
     val errorMessage : LiveData<String?> = _errorMessage
     private val _currentIndex = MutableLiveData(0)
     val currentIndex: LiveData<Int> = _currentIndex
-    fun loadPokemonList(){
+
+    init {
+        loadPokemonList()
+    }
+    fun loadPokemonList() {
+        _isLoading.value = true
+
         viewModelScope.launch {
-            _isLoading.value=true
+            try {
+                val result = pokemonRepository.getPokemonList()
+                Log.d("VistaViewModel", "Pokemons loaded: ${result?.size}")
 
-            if(pokemonRepository.getPokemonList() == null){
-                _errorMessage.value = "Error al obtener datos"
-            }else{
-                _pokemonList.value = pokemonRepository.getPokemonList()
+                _pokemonList.value = result!!
+                _isLoading.value = false
+            } catch (e: Exception) {
+                _errorMessage.value = e.message
+                _isLoading.value = false
             }
-
-
-            _isLoading.value = false
         }
     }
+
     fun nextPokemon(){
         val list = _pokemonList.value ?: emptyList()
-        if(list.isNotEmpty()){
-            val next = ((_currentIndex.value ?: 0) + 1) % list.size
-            _currentIndex.value = next
+        if(!list.isNullOrEmpty()){
+            _currentIndex.value  = ((_currentIndex.value ?: 0) + 1) % list.size
+
         }
     }
     fun getCurrentUser(): FirebaseUser? {

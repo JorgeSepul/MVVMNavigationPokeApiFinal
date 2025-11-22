@@ -13,5 +13,5 @@ object Inicio
 object ScreenDatos
 //si queremos mandar parámetros necesitamos una data class
 @Serializable
-data class Vista(val email : String, val pass : String)
+object Vista
 //si necesitamos pasar algo más pesado, un objeto, un array, lo hacemos pasando id y utilizando sharedPrefs

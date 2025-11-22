@@ -1,18 +1,9 @@
 package com.example.mvvmnavigation.data.models
 
-class Pokemon {
-    lateinit var name: String
-    private lateinit var url: String
+data class Pokemon(val name : String = "", val url : String = "") {
+
     fun getNombre() : String{
         return this.name
     }
-    fun getUrl() : String {
-        return this.url
-    }
-    fun setNombre(name : String){
-        this.name = name
-    }
-    fun setUrl(url : String){
-        this.url = url
-    }
+
 }

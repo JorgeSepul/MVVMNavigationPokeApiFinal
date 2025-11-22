@@ -10,8 +10,8 @@ import retrofit2.http.Path
 interface PokeAPI {
     @Headers("Accept: application/json")
 // Método para obtener todos los pokemon
-    @GET("pokemon")
-    fun getPokemons(): Call<PokemonResponse>
+    @GET("pokemon?limit=100")
+    suspend fun getPokemons(): PokemonResponse
     // Método para obtener una pokemon por su ID
     @GET("pokemon/{id}")
     fun getPokemon(@Path("id") id: Int): Call<Pokemon>

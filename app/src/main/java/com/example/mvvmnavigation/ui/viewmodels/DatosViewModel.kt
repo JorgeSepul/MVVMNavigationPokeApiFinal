@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mvvmnavigation.data.repository.SharedRepository
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -50,7 +51,42 @@ class DatosViewModel(
             _message.value = "La contraseña debe tener al menos 6 caracteres."
             return
         }
+
+        _isLoading.value = true
+        val user = auth.currentUser
+
+        if (user == null) {
+            _message.value = "Usuario no autenticado"
+            _isLoading.value = false
+            return
+        }
+
+        val credential = EmailAuthProvider.getCredential(emailVal, sharedRepo.getPassword())
+
+        user.reauthenticate(credential).addOnCompleteListener { authTask ->
+
+            if (authTask.isSuccessful) {
+
+                user.updatePassword(newPass).addOnCompleteListener { updateTask ->
+                    _isLoading.value = false
+
+                    if (updateTask.isSuccessful) {
+                        sharedRepo.saveLogin(emailVal, newPass)
+                        _message.value = "Contraseña actualizada"
+                        _navigateToVista.value = true
+                    } else {
+                        _message.value = "Error al actualizar contraseña"
+                    }
+                }
+
+            } else {
+                _isLoading.value = false
+                _message.value = "Debes volver a iniciar sesión"
+            }
+        }
     }
+
+
     fun onNavigated() {
         _navigateToVista.value = false
     }

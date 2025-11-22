@@ -12,18 +12,28 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.example.mvvmnavigation.data.repository.SharedRepository
 import com.example.mvvmnavigation.ui.viewmodels.LoginViewModel
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel, NavigateToVista: @Composable () -> Unit) {
+fun LoginScreen(viewModel: LoginViewModel, navigateToDatos: () -> Unit) {
     val email by viewModel.email.observeAsState("")
     val pass by viewModel.password.observeAsState("")
     val errorMessage by viewModel.errorMessage.observeAsState("")
     val isLoading by viewModel.isLoading.observeAsState(false)
     val isLoginOk by viewModel.isLoginOk.observeAsState(false)
 
+    val contexto = LocalContext.current
+    val sharedRepo = remember { SharedRepository(contexto) }
+
+    if (isLoginOk) {
+        sharedRepo.saveLogin(email, pass)
+        navigateToDatos()
+    }
     if(isLoading){
         Column (
             verticalArrangement = Arrangement.Center,
@@ -48,10 +58,8 @@ fun LoginScreen(viewModel: LoginViewModel, NavigateToVista: @Composable () -> Un
                 }
             }
 
-            if(isLoginOk){
-                NavigateToVista()
-            }else{
-                Text(text = errorMessage.toString())
+            if (!isLoginOk && !errorMessage.isNullOrBlank()) {
+                Text(text = errorMessage!!)
             }
         }
     }
